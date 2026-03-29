@@ -3,179 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="apple-touch-icon" href="image_42.png">
+    <link rel="icon" href="image_42.png">
     <title>Invisible Char Remover - Fridge Combo</title>
     <style>
         :root {
+            --bg: #f5f5f5;
+            --container-bg: #fff;
             --main: #333;
-            --bg: #fff;
-            --accent: #fafafa;
+            --accent: #eee;
+            --input-bg: #fafafa;
+            --ghost: #aaa;
             --radius: 15px;
         }
 
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
         body {
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg);
             color: var(--main);
+            margin: 0;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
             align-items: center;
-        }
-
-        main {
-            flex: 1;
-            width: 100%;
-            max-width: 500px;
+            min-height: 100vh;
             padding: 20px;
-            box-sizing: border-box;
         }
 
-        .input-area {
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background-color: var(--container-bg);
+            padding: 30px 15px 35px;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        header { text-align: center; margin-bottom: 5px; }
+        h1 { font-size: 24px; margin: 0; font-weight: 800; letter-spacing: -0.5px; }
+        .description { font-size: 13px; opacity: 0.6; margin-top: 5px; }
+
+        .input-wrapper {
+            width: 100%;
             position: relative;
-            margin-bottom: 20px;
         }
 
         textarea {
             width: 100%;
             height: 200px;
             padding: 15px;
-            border: 2px solid var(--main);
+            border: 2px solid var(--accent);
             border-radius: var(--radius);
-            background-color: var(--accent);
+            background-color: var(--input-bg);
             font-size: 16px;
-            box-sizing: border-box;
-            resize: none;
+            color: var(--main);
             outline: none;
-            /* iOS Specific */
+            resize: none;
+            /* iOS Fix */
             -webkit-appearance: none;
             -webkit-text-fill-color: var(--main);
             opacity: 1 !important;
         }
+        textarea::placeholder { color: #ccc; }
 
-        textarea::placeholder {
-            color: #999;
-        }
-
-        .stats-card {
-            background: var(--accent);
+        .stats-area {
+            display: none;
+            background: var(--input-bg);
             border-radius: var(--radius);
             padding: 15px;
-            margin-bottom: 20px;
-            display: none; /* 初期は非表示 */
+            border: 1px solid var(--accent);
         }
-
-        .stats-title {
-            font-weight: bold;
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-            display: block;
-        }
-
+        .stats-title { font-size: 12px; font-weight: 800; margin-bottom: 8px; color: #666; }
         .stat-item {
             display: flex;
             justify-content: space-between;
-            font-size: 0.85rem;
+            font-size: 12px;
             padding: 4px 0;
             border-bottom: 1px solid #eee;
         }
+        .stat-item:last-child { border-bottom: none; }
 
-        .stat-item:last-child {
-            border-bottom: none;
-        }
-
-        .btn-black {
+        .action-btn {
+            display: none;
             width: 100%;
-            padding: 15px;
+            padding: 18px;
             background-color: var(--main);
             color: #fff;
             border: none;
             border-radius: var(--radius);
             font-size: 16px;
-            font-weight: bold;
+            font-weight: 800;
             cursor: pointer;
-            transition: opacity 0.2s;
-            margin-bottom: 10px;
         }
+        .action-btn:active { transform: scale(0.98); }
 
-        .btn-black:active {
-            opacity: 0.8;
-        }
-
-        /* Footer & Modal Styles */
-        footer {
-            padding: 20px;
-            text-align: center;
-            font-size: 12px;
-            color: #666;
-        }
-
-        .support-links {
+        .support-area {
+            margin-top: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 15px;
+            border-top: 1px solid var(--accent);
+            padding-top: 25px;
         }
 
-        .kofi-button {
-            background: #111;
-            color: white;
-            padding: 8px 16px;
-            border-radius: var(--radius);
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .modal-trigger {
-            background: none;
+        .foot-btn {
+            width: 85%;
+            padding: 12px;
+            background-color: var(--main);
+            color: #fff;
             border: none;
-            color: #666;
-            text-decoration: underline;
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
             cursor: pointer;
-            font-size: 12px;
+            opacity: 0.9;
+            transition: 0.1s;
         }
+        .foot-btn:active { transform: scale(0.98); opacity: 1; }
+
+        footer {
+            margin-top: auto;
+            padding: 40px 0 20px;
+            text-align: center;
+            font-size: 11px;
+            line-height: 1.8;
+            opacity: 0.5;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            justify-content: center; align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: var(--container-bg);
+            padding: 30px;
+            border-radius: var(--radius);
+            max-width: 340px;
+            width: 90%;
+            position: relative;
+        }
+        .modal-close { position: absolute; top: 15px; right: 15px; color: #ccc; font-size: 22px; cursor: pointer; }
+        .modal-title { font-weight: bold; font-size: 20px; margin-bottom: 20px; }
+        .modal-item { margin-bottom: 15px; font-size: 14px; line-height: 1.5; }
+        .modal-item b { display: block; margin-bottom: 3px; color: var(--main); }
+
     </style>
 </head>
 <body>
 
-<main>
-    <div class="input-area">
-        <textarea id="textInput" placeholder="Paste your text here..."></textarea>
+<div class="container">
+    <header>
+        <h1>Invisible Eraser</h1>
+        <div class="description">Remove hidden "dust" from your text.</div>
+    </header>
+
+    <div class="input-wrapper">
+        <textarea id="text-input" placeholder="Paste your text here..."></textarea>
     </div>
 
-    <div id="statsCard" class="stats-card">
-        <span class="stats-title">✨ Cleaned! Found invisible chars:</span>
-        <div id="statsList"></div>
+    <div id="stats-area" class="stats-area">
+        <div class="stats-title">✨ Cleaned!</div>
+        <div id="stats-list"></div>
     </div>
 
-    <button id="copyBtn" class="btn-black" style="display:none;">Copy Cleaned Text</button>
+    <button id="copy-btn" class="action-btn">COPY CLEANED TEXT</button>
 
-    <div class="support-links">
-        <a href="https://ko-fi.com/afrorakda" class="kofi-button">☕️ buy me a coffee</a>
-        <button class="modal-trigger" onclick="alert('To use this like an app:\n1. Open in Safari\n2. Tap Share\n3. Select Add to Home Screen')">Add to Home Screen</button>
+    <div class="support-area">
+        <a href="https://ko-fi.com/afrorakda" target="_blank" class="foot-btn">☕️ buy me a coffee</a>
+        <div class="foot-btn" onclick="showModal()">📱 Add to Home Screen</div>
     </div>
-</main>
+</div>
 
 <footer>
-    No login / No tracking / No ads / Browser only Privacy Policy / afrorakda © 2026
+    No login / No tracking / No ads / Browser only<br>
+    Privacy Policy / afrorakda © 2026
 </footer>
 
+<div id="homeModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-close" onclick="closeModal()">×</div>
+        <div class="modal-title">Install</div>
+        <div class="modal-item"><b>🍏 iPhone (Safari):</b> Tap Share, then Add to Home Screen.</div>
+        <div class="modal-item"><b>🤖 Android (Chrome):</b> Tap Menu (⋮), then Add to Home Screen.</div>
+    </div>
+</div>
+
 <script>
-    const input = document.getElementById('textInput');
-    const statsCard = document.getElementById('statsCard');
-    const statsList = document.getElementById('statsList');
-    const copyBtn = document.getElementById('copyBtn');
+    const input = document.getElementById('text-input');
+    const statsArea = document.getElementById('stats-area');
+    const statsList = document.getElementById('stats-list');
+    const copyBtn = document.getElementById('copy-btn');
 
     input.addEventListener('input', () => {
         const original = input.value;
         if (!original) {
-            statsCard.style.display = 'none';
+            statsArea.style.display = 'none';
             copyBtn.style.display = 'none';
             return;
         }
 
-        // Target Characters
         const targets = [
             { name: 'Full-width Space (全角)', regex: /\u3000/g },
             { name: 'Zero Width Space', regex: /\u200B/g },
@@ -187,9 +225,9 @@
         let findings = [];
 
         targets.forEach(t => {
-            const count = (original.match(t.regex) || []).length;
-            if (count > 0) {
-                findings.push({ name: t.name, count: count });
+            const matches = original.match(t.regex);
+            if (matches) {
+                findings.push({ name: t.name, count: matches.length });
                 cleaned = cleaned.replace(t.regex, '');
             }
         });
@@ -197,11 +235,10 @@
         if (findings.length > 0) {
             input.value = cleaned;
             renderStats(findings);
-            statsCard.style.display = 'block';
+            statsArea.style.display = 'block';
             copyBtn.style.display = 'block';
-        } else if (original.length > 0) {
-            // Nothing found but content exists
-            statsCard.style.display = 'none';
+        } else {
+            statsArea.style.display = 'none';
             copyBtn.style.display = 'block';
         }
     });
@@ -218,9 +255,12 @@
     copyBtn.addEventListener('click', () => {
         navigator.clipboard.writeText(input.value);
         const originalText = copyBtn.innerText;
-        copyBtn.innerText = '✅ Copied!';
+        copyBtn.innerText = '✅ COPIED!';
         setTimeout(() => copyBtn.innerText = originalText, 2000);
     });
+
+    function showModal() { document.getElementById('homeModal').style.display = 'flex'; }
+    function closeModal() { document.getElementById('homeModal').style.display = 'none'; }
 </script>
 
 </body>
