@@ -2,186 +2,176 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="apple-touch-icon" href="image_42.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Invisible Eraser</title>
+    
     <link rel="icon" href="image_42.png">
-    <title>Invisible Char Remover - Fridge Combo</title>
+    <link rel="apple-touch-icon" href="image_42.png">
+
     <style>
         :root {
-            --bg: #fff;
             --main: #333;
+            --bg: #fff;
             --accent: #eee;
             --input-bg: #fafafa;
             --radius: 15px;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        /* 憲法遵守: 角丸15px / iOS Safari対策 / 全域選択禁止 */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; }
+
+        /* 入力エリアのみテキスト選択許可 */
+        textarea { -webkit-user-select: text; user-select: text; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg);
             color: var(--main);
-            margin: 0;
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            justify-content: center;
             min-height: 100vh;
-            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+            padding: env(safe-area-inset-top, 20px) 20px env(safe-area-inset-bottom, 20px) 20px;
         }
 
         .container {
             width: 100%;
-            max-width: 400px;
-            padding: 20px 0;
+            max-width: 420px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
         }
 
-        header { text-align: center; margin-bottom: 5px; }
-        h1 { font-size: 26px; margin: 0; font-weight: 800; letter-spacing: -1px; }
-        .description { font-size: 13px; opacity: 0.6; margin-top: 5px; }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-        .input-wrapper {
-            width: 100%;
+        h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -1.2px; }
+
+        .hub-link {
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--main);
+            background: var(--accent);
+            padding: 8px 14px;
+            border-radius: var(--radius);
+        }
+
+        .subtitle { font-size: 0.9rem; color: #666; font-weight: 700; text-align: left; }
+
+        .input-card {
+            background: var(--input-bg);
+            padding: 18px;
+            border-radius: var(--radius);
+            border: 2px solid var(--accent);
             position: relative;
         }
 
+        .input-wrapper { position: relative; }
+
         textarea {
             width: 100%;
-            height: 320px; /* 1.6x expanded */
+            height: 280px;
             padding: 15px;
+            padding-right: 45px;
             border: 2px solid var(--accent);
             border-radius: var(--radius);
-            background-color: var(--input-bg);
-            font-size: 16px;
-            color: var(--main);
+            background-color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--main) !important;
             outline: none;
             resize: none;
-            /* iOS Safari Fix */
             -webkit-appearance: none;
-            -webkit-text-fill-color: var(--main);
+            -webkit-text-fill-color: var(--main) !important;
             opacity: 1 !important;
         }
-        textarea::placeholder { color: #ccc; }
+        textarea::placeholder { color: #bbb !important; -webkit-text-fill-color: #bbb !important; opacity: 1 !important; }
 
         .clr-btn {
-            position: absolute;
-            right: 15px;
-            bottom: 15px;
-            font-size: 12px;
-            font-weight: 800;
-            color: var(--main);
-            cursor: pointer;
-            opacity: 0.4;
-            padding: 5px;
+            position: absolute; top: 10px; right: 10px; width: 28px; height: 28px;
+            background: #ccc; color: #fff; border-radius: 50%;
+            display: none; align-items: center; justify-content: center;
+            cursor: pointer; border: none; font-size: 16px; font-weight: bold; z-index: 5;
         }
-        .clr-btn:active { opacity: 1; }
 
-        .erase-btn {
+        .action-btn {
             width: 100%;
             padding: 18px;
             background-color: var(--main);
             color: #fff;
             border: none;
             border-radius: var(--radius);
-            font-size: 16px;
+            font-size: 1rem;
             font-weight: 800;
             cursor: pointer;
-            transition: transform 0.1s;
+            -webkit-text-fill-color: #fff;
         }
-        .erase-btn:active { transform: scale(0.98); }
+        .action-btn:active { transform: scale(0.98); }
 
         .stats-area {
             display: none;
             background: var(--input-bg);
             border-radius: var(--radius);
-            padding: 20px;
-            border: 1px solid var(--accent);
-            animation: fadeIn 0.3s ease;
+            padding: 18px;
+            border: 2px solid var(--accent);
+            animation: fadeIn 0.2s ease;
         }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .stats-title { font-size: 13px; font-weight: 800; margin-bottom: 12px; }
+        .stats-title { font-size: 0.8rem; font-weight: 900; margin-bottom: 12px; color: #666; text-transform: uppercase; }
         .stat-item {
             display: flex;
             justify-content: space-between;
-            font-size: 13px;
-            padding: 6px 0;
-            border-bottom: 1px solid #eee;
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--accent);
         }
         .stat-item:last-child { border-bottom: none; }
 
         .copy-btn {
             display: none;
             width: 100%;
-            padding: 18px;
-            background-color: var(--main);
-            color: #fff;
+            padding: 16px;
+            background-color: var(--accent);
+            color: var(--main);
             border: none;
             border-radius: var(--radius);
-            font-size: 16px;
+            font-size: 0.9rem;
             font-weight: 800;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 5px;
         }
         .copy-btn:active { transform: scale(0.98); }
 
-        .support-area {
-            margin-top: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            border-top: 1px solid var(--accent);
-            padding-top: 25px;
+        .footer-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 5px; }
+        .kofi-btn {
+            background: var(--main); color: #fff; text-decoration: none;
+            padding: 16px; border-radius: var(--radius); text-align: center;
+            font-weight: 900; font-size: 0.9rem; -webkit-text-fill-color: #fff;
+        }
+        .home-btn {
+            background: var(--accent); color: var(--main); border: none;
+            padding: 12px; border-radius: var(--radius); font-weight: 800; font-size: 0.8rem; cursor: pointer;
         }
 
-        .foot-btn {
-            width: 100%;
-            padding: 15px;
-            background-color: var(--main);
-            color: #fff;
-            border: none;
-            border-radius: var(--radius);
-            font-size: 14px;
-            font-weight: bold;
-            text-decoration: none;
-            text-align: center;
-            cursor: pointer;
-        }
-        .foot-btn:active { transform: scale(0.98); }
+        /* 鉄壁フッター（聖域） */
+        footer { text-align: center; font-size: 0.75rem; color: #999; line-height: 1.6; font-weight: 700; margin-top: 15px; }
+        footer a { color: inherit; text-decoration: underline; }
 
-        footer {
-            margin-top: auto;
-            padding: 40px 0 20px;
-            text-align: center;
-            font-size: 11px;
-            line-height: 1.8;
-            opacity: 0.4;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            justify-content: center; align-items: center;
-            z-index: 1000;
+        #modal {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+            align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px);
         }
         .modal-content {
-            background: #fff;
-            padding: 30px;
-            border-radius: var(--radius);
-            max-width: 340px;
-            width: 90%;
-            position: relative;
+            background: #fff; width: 90%; max-width: 340px; padding: 35px;
+            border-radius: var(--radius); text-align: left; position: relative;
         }
-        .modal-close { position: absolute; top: 15px; right: 15px; color: #ccc; font-size: 22px; cursor: pointer; }
-        .modal-title { font-weight: bold; font-size: 20px; margin-bottom: 20px; }
-        .modal-item { margin-bottom: 15px; font-size: 14px; line-height: 1.5; }
-        .modal-item b { display: block; margin-bottom: 3px; }
-
+        .close-x { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #ccc; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -189,60 +179,68 @@
 <div class="container">
     <header>
         <h1>Invisible Eraser</h1>
-        <div class="description">One-tap Invisible Character Eraser.</div>
+        <a href="https://afrorakda.github.io/" class="hub-link">🏠 Hub</a>
     </header>
+    <p class="subtitle">One-tap invisible character remover.</p>
 
-    <div class="input-wrapper">
-        <textarea id="text-input" placeholder="Paste your text here..."></textarea>
-        <div class="clr-btn" id="clr-action">CLR</div>
+    <div class="input-card">
+        <div class="input-wrapper">
+            <textarea id="text-input" placeholder="Paste your text here..." oninput="toggleClr()"></textarea>
+            <button class="clr-btn" id="clrBtn" onclick="clearInput()">×</button>
+        </div>
     </div>
 
-    <button id="erase-btn" class="erase-btn">ERASE IT</button>
+    <button id="erase-btn" class="action-btn" onclick="eraseIt()">ERASE IT</button>
 
     <div id="stats-area" class="stats-area">
-        <div class="stats-title">✨ Cleaned! Found invisible chars:</div>
+        <div class="stats-title">✨ Cleaned Results</div>
         <div id="stats-list"></div>
-        <button id="copy-btn" class="copy-btn">COPY CLEANED TEXT</button>
+        <button id="copy-btn" class="copy-btn" onclick="copyCleaned()">COPY CLEANED TEXT</button>
     </div>
 
-    <div class="support-area">
-        <a href="https://ko-fi.com/afrorakda" target="_blank" class="foot-btn">☕️buy me a coffee</a>
-        <div class="foot-btn" onclick="showModal()">📱 Add to Home Screen</div>
+    <div class="footer-btns">
+        <a id="kofi-link" href="https://ko-fi.com/afrorakda" target="_blank" class="kofi-btn">☕️ buy me a coffee</a>
+        <button class="home-btn" onclick="showModal()">Add to Home Screen</button>
     </div>
+
+    <footer>
+        <span id="footer-text">No login / No tracking / No ads / Browser only</span><br>
+        <a id="privacy-link" href="https://afrorakda.com/privacy/">Privacy Policy</a> / <span id="copyright">afrorakda © 2026</span>
+    </footer>
 </div>
 
-<footer>
-    No login / No tracking / No ads / Browser only<br>
-    Privacy Policy / afrorakda © 2026
-</footer>
-
-<div id="homeModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-close" onclick="closeModal()">×</div>
-        <div class="modal-title">Install</div>
-        <div class="modal-item"><b>🍏 iPhone (Safari):</b> Tap Share, then Add to Home Screen.</div>
-        <div class="modal-item"><b>🤖 Android (Chrome):</b> Tap Menu (⋮), then Add to Home Screen.</div>
+<div id="modal" onclick="hideModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <span class="close-x" onclick="hideModal()">×</span>
+        <h3 id="modal-title" style="margin-bottom: 15px; font-weight: 900;">📱 Install</h3>
+        <p id="modal-body" style="font-size: 0.9rem; line-height: 1.6; font-weight: 700;">
+            🍏 <strong>iPhone:</strong><br>Share > Add to Home Screen<br><br>
+            🤖 <strong>Android:</strong><br>Menu (⋮) > Add to Home Screen
+        </p>
     </div>
 </div>
 
 <script>
     const input = document.getElementById('text-input');
-    const clrBtn = document.getElementById('clr-action');
-    const eraseBtn = document.getElementById('erase-btn');
+    const clrBtn = document.getElementById('clrBtn');
     const statsArea = document.getElementById('stats-area');
     const statsList = document.getElementById('stats-list');
     const copyBtn = document.getElementById('copy-btn');
 
-    // CLR Action
-    clrBtn.addEventListener('click', () => {
+    function toggleClr() {
+        clrBtn.style.display = input.value.length > 0 ? 'flex' : 'none';
+    }
+
+    function clearInput() {
         input.value = '';
+        toggleClr();
         statsArea.style.display = 'none';
         copyBtn.style.display = 'none';
         input.focus();
-    });
+    }
 
-    // Erase Logic
-    eraseBtn.addEventListener('click', () => {
+    // 外部参照に基づく削除対象リスト
+    function eraseIt() {
         const original = input.value;
         if (!original) return;
 
@@ -267,34 +265,50 @@
         input.value = cleaned;
 
         if (findings.length > 0) {
-            renderStats(findings);
-            statsArea.style.display = 'block';
-            copyBtn.style.display = 'block';
+            statsList.innerHTML = findings.map(f => `
+                <div class="stat-item">
+                    <span>${f.name}</span>
+                    <span>${f.count}</span>
+                </div>
+            `).join('');
         } else {
             statsList.innerHTML = '<div class="stat-item">No invisible characters found.</div>';
-            statsArea.style.display = 'block';
-            copyBtn.style.display = 'block';
         }
-    });
 
-    function renderStats(findings) {
-        statsList.innerHTML = findings.map(f => `
-            <div class="stat-item">
-                <span>${f.name}</span>
-                <span>${f.count}</span>
-            </div>
-        `).join('');
+        statsArea.style.display = 'block';
+        copyBtn.style.display = 'block';
+        window.scrollTo({ top: statsArea.offsetTop - 20, behavior: 'smooth' });
     }
 
-    copyBtn.addEventListener('click', () => {
-        navigator.clipboard.writeText(input.value);
-        const originalText = copyBtn.innerText;
-        copyBtn.innerText = '✅ COPIED!';
-        setTimeout(() => copyBtn.innerText = originalText, 2000);
-    });
+    async function copyCleaned() {
+        try {
+            await navigator.clipboard.writeText(input.value);
+            const originalText = copyBtn.innerText;
+            copyBtn.innerText = '✅ COPIED!';
+            setTimeout(() => copyBtn.innerText = originalText, 1500);
+        } catch (err) {}
+    }
 
-    function showModal() { document.getElementById('homeModal').style.display = 'flex'; }
-    function closeModal() { document.getElementById('homeModal').style.display = 'none'; }
+    function showModal() { document.getElementById('modal').style.display = 'flex'; }
+    function hideModal() { document.getElementById('modal').style.display = 'none'; }
+
+    // 鉄壁ロジック: 削除厳禁・聖域
+    async function loadFooter() {
+        try {
+            const response = await fetch('footer.json');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.footerText) document.getElementById('footer-text').innerText = data.footerText;
+                if (data.privacyLink) document.getElementById('privacy-link').href = data.privacyLink;
+                if (data.copyright) document.getElementById('copyright').innerText = data.copyright;
+                if (data.kofiText) document.getElementById('kofi-link').innerText = data.kofiText;
+                if (data.modalTitle) document.getElementById('modal-title').innerText = data.modalTitle;
+                if (data.modalBody) document.getElementById('modal-body').innerHTML = data.modalBody;
+            }
+        } catch (e) { console.log("Static footer active."); }
+    }
+
+    loadFooter();
 </script>
 
 </body>
